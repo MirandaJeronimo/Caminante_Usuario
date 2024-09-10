@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1088120227990",
+    "project_id": "caminante2-aa447",
+    "storage_bucket": "caminante2-aa447.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088120227990:android:3fbc3ba10d055148ad1ab7",
+        "android_client_info": {
+          "package_name": "com.example.caminante_appvsc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7HQVKRiY1gt-3h0YSVf3oeOlgAn9uJOk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088120227990:android:484db0d5f19170b1ad1ab7",
+        "android_client_info": {
+          "package_name": "com.example.caminante_establecimiento_firebase2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7HQVKRiY1gt-3h0YSVf3oeOlgAn9uJOk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
