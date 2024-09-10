@@ -4,9 +4,20 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:caminante_appvsc/registro1.dart';
 import 'package:caminante_appvsc/sites.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:caminante_appvsc/sites.dart';
 
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: "AIzaSyA7HQVKRiY1gt-3h0YSVf3oeOlgAn9uJOk", //  ==   current_key in google-services.json file
+      appId: "1:1088120227990:android:484db0d5f19170b1ad1ab7", // ==  mobilesdk_app_id  in google-services.json file
+      messagingSenderId: "1088120227990", // ==   project_number in google-services.json file
+      projectId: "caminante2-aa447", // ==   project_id   in google-services.json file
+    ),
+  );
   runApp(const LoginApp());
 }
 
@@ -308,6 +319,7 @@ class LoginPage extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {
                   print('Iniciar Sesión');
+                  Navigator.pushReplacementNamed(context, '/sites');
                 },
                 child: Text(
                   'Iniciar sesión',

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_color/flutter_color.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Importa Firebase Firestore
 import 'package:caminante_appvsc/perfil.dart';
 import 'package:caminante_appvsc/eventos.dart';
 import 'package:caminante_appvsc/favoritos.dart';
@@ -11,6 +12,9 @@ import 'search_screen.dart'; // Importa la nueva pantalla de búsqueda
 import 'package:qrscan/qrscan.dart' as scanner;  // Importa lectorqr
 import 'package:permission_handler/permission_handler.dart'; // Importa permisosparacamara
 import 'package:url_launcher/url_launcher.dart'; // Importa url_launcher
+import 'chatbot_screen.dart'; // Importa la pantalla del chatbot
+
+
 
 class SitesScreen extends StatefulWidget {
   const SitesScreen({super.key});
@@ -23,17 +27,204 @@ class _SitesScreenState extends State<SitesScreen> {
   late GoogleMapController _mapController;
   late TextEditingController _searchController;
   bool _showPanel = false;
+  List entidades = [];  // Lista para las entidades de Firebase
+  Map<String, dynamic>? entidadSeleccionada;  // Entidad seleccionada al presionar el marcador
+  Set<Marker> _markers = {};  // Conjunto de marcadores para el mapa
 
   void _onMapCreated(GoogleMapController controller) {
     setState(() {
       _mapController = controller;
+      for (var entidad in entidades) {
+        print('Agregando marcador para: ${entidad['nombreEntidad']}'); // Agregar impresión
+        _markers.add(
+          Marker(
+            markerId: MarkerId(entidad['nombreEntidad']),
+            position: LatLng(entidad['latitud'], entidad['longitud']),
+            infoWindow: InfoWindow(
+              title: entidad['nombreEntidad'],
+              snippet: entidad['categoria'],
+            ),
+              onTap: () {
+                setState(() {
+                  entidadSeleccionada = entidad; // Asignar entidad seleccionada
+                });
+
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true, // Permitir que el BottomSheet ocupe más espacio
+                  builder: (context) {
+                    return FractionallySizedBox(
+                      heightFactor: 0.9, // Ocupar el 90% de la pantalla
+                      child: Container(
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(16.0),
+                            topRight: Radius.circular(16.0),
+                          ),
+                        ),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Imagen de la entidad o fondo predeterminado
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(16.0),
+                                child: Image.asset(
+                                  'assets/fondo.png', // Imagen predeterminada
+                                  height: 200,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(height: 16.0),
+
+                              // Información de la entidad
+                              Text(
+                                entidadSeleccionada!['nombreEntidad'] ?? 'Nombre no disponible',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 22.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Text(
+                                entidadSeleccionada!['categoria'] ?? 'Categoría no disponible',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 18.0,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Divider(),
+
+                              // Página Oficial
+                              Text(
+                                'Página Oficial',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                entidadSeleccionada!['paginaOficial'] ?? 'No disponible',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16.0,
+                                  color: Colors.blue, // Enlace en azul
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Divider(),
+
+                              // Correo de la Empresa
+                              Text(
+                                'Correo de la Empresa',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                entidadSeleccionada!['correoInstitucional'] ?? 'No disponible',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16.0,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Divider(),
+
+                              // Horarios de atención (si están disponibles)
+                              Text(
+                                'Horario de atención',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                'Lunes a Viernes: 8:00 AM - 8:00 PM', // Ejemplo de horario
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16.0,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              Divider(),
+
+                              // Descripción
+                              Text(
+                                'Descripción',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text(
+                                entidadSeleccionada!['naturalezaEntidad'] ?? 'Descripción no disponible',
+                                style: GoogleFonts.montserrat(
+                                  fontSize: 16.0,
+                                  color: Colors.grey[800],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+
+
+              }
+
+          ),
+        );
+      }
     });
   }
+
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
+    _loadEntidades(); // Cargar las entidades desde Firebase al iniciar
+  }
+
+  // Función para cargar las entidades desde Firebase
+  void _loadEntidades() async {
+    FirebaseFirestore.instance.collection('entidades').get().then((snapshot) {
+      setState(() {
+        for (var doc in snapshot.docs) {
+          Map<String, dynamic> entidad = doc.data();
+
+          // Extraer coordenadas del campo 'ubicacion'
+          String ubicacion = entidad['ubicacion'];
+          List<String> partesUbicacion = ubicacion.split("Coordenadas:");
+          if (partesUbicacion.length == 2) {
+            // Extraer latitud y longitud
+            List<String> coordenadas = partesUbicacion[1].trim().split(",");
+            double latitud = double.parse(coordenadas[0]);
+            double longitud = double.parse(coordenadas[1]);
+
+            // Añadir las coordenadas extraídas al mapa
+            entidad['latitud'] = latitud;
+            entidad['longitud'] = longitud;
+
+            // Agregar la entidad con coordenadas a la lista
+            entidades.add(entidad);
+          }
+        }
+        // Una vez que se cargan las entidades, actualiza los marcadores en el mapa
+        _onMapCreated(_mapController);
+      });
+    });
   }
 
   Future<void> requestPermissions() async {
@@ -79,6 +270,7 @@ class _SitesScreenState extends State<SitesScreen> {
               target: LatLng(10.3910, -75.4794),
               zoom: 15.0,
             ),
+            markers: _markers, // Mostrar los marcadores en el mapa
           ),
           Positioned(
             top: 40.0,
@@ -307,15 +499,33 @@ class _SitesScreenState extends State<SitesScreen> {
           Positioned(
             right: 16.0,
             top: MediaQuery.of(context).size.height / 2 - 28.0, // Ajusta la posición vertical para estar en la mitad
-            child: FloatingActionButton(
-              onPressed: () async {
-                await scanQRCode();
-              },
-              child: Icon(
-                Icons.qr_code_scanner_rounded,
-                color: Colors.white,
-              ),
-              backgroundColor: HexColor('#FF0080'),
+            child: Column(
+              children: [
+                FloatingActionButton(
+                  onPressed: () async {
+                    await scanQRCode();
+                  },
+                  child: Icon(
+                    Icons.qr_code_scanner_rounded,
+                    color: Colors.white,
+                  ),
+                  backgroundColor: HexColor('#FF0080'),
+                ),
+                const SizedBox(height: 16.0),
+                FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ChatBotScreen()),
+                    );
+                  },
+                  child: Icon(
+                    Icons.chat,
+                    color: Colors.white,
+                  ),
+                  backgroundColor: HexColor('#FF0080'), // Cambia el color si lo prefieres
+                ),
+              ],
             ),
           ),
         ],
@@ -327,17 +537,18 @@ class _SitesScreenState extends State<SitesScreen> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildIconButton(context, 'assets/perfil.png', const PerfilScreen(),isSelected: false,),
-              _buildIconButton(context, 'assets/calendario.png', const EventosScreen(),isSelected: false,),
-              _buildIconButton(context, 'assets/home.png', const SitesScreen(),isSelected: true,),
-              _buildIconButton(context, 'assets/favoritos.png', const FavoritosScreen(),isSelected: false,),
-              _buildIconButton(context, 'assets/ajustes.png', const AjustesScreen(),isSelected: false,),
+              _buildIconButton(context, 'assets/perfil.png', const PerfilScreen(), isSelected: false),
+              _buildIconButton(context, 'assets/calendario.png', const EventosScreen(), isSelected: false),
+              _buildIconButton(context, 'assets/home.png', const SitesScreen(), isSelected: true),
+              _buildIconButton(context, 'assets/favoritos.png', const FavoritosScreen(), isSelected: false),
+              _buildIconButton(context, 'assets/ajustes.png', const AjustesScreen(), isSelected: false),
             ],
           ),
         ),
       ),
     );
   }
+
 
   Widget _buildIconButton(
       BuildContext context,

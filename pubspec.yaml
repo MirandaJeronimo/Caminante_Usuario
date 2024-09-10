@@ -31,7 +31,13 @@ dependencies:
   qrscan: ^0.3.3 #libería para qr
   permission_handler: 11.3.1  #permisos par qr
   url_launcher: ^6.1.5
-
+  ###################################
+  firebase_core: ^3.3.0
+  cloud_firestore: ^5.2.0
+  flutter_dotenv: ^5.1.0
+  http: ^1.2.2
+  provider: ^6.1.2
+  chat_gpt_sdk: ^3.1.0
 
 
 
@@ -44,6 +50,7 @@ dev_dependencies:
   test: ^1.25.2
   build_runner: ^2.4.11
   objectbox_generator: any
+  json_serializable: ^6.8.0
 
 flutter:
   uses-material-design: true
