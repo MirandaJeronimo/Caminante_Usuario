@@ -12,7 +12,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   String _response = ''; // Almacena la respuesta de la IA
 
   // API Key de OpenAI (agrega tu clave aquí)
-  String apiKey = 'apikey';
+  String apiKey = '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';
 
   // Función para enviar un mensaje al chatbot
   Future<void> _sendMessage(String message) async {
